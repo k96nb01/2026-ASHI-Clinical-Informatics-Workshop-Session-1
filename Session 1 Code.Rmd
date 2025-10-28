@@ -1,0 +1,19 @@
+---
+title: "2026 ASHI Clinical Informatics Workshop - Session 1"
+---
+
+```{r}
+# These packages will need to be installed
+install.packages("tidyverse")
+install.packages("immunogenetr")
+```
+
+```{r}
+# Load the packages
+library(tidyverse)
+library(immunogenetr)
+
+# Open some test HLA data
+(HLA_dictionary)
+```
+
