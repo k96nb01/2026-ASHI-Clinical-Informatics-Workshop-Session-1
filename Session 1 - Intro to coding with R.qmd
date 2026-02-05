@@ -1,0 +1,21 @@
+---
+title: "Session 1 - Intro to coding with R"
+---
+
+## Quarto
+
+This is a Qurto document. Code lives in "chunks" like the one below. 
+
+```{r}
+# This is a code chunk. Let's load the packages (the machines) we need for this session:
+
+library(tidyverse)
+library(immunogenetr)
+```
+
+# Now that we've loaded the machines we'll need, let's run our first line of code:
+
+```{r}
+HLA_typing_1 %>% print()
+```
+
