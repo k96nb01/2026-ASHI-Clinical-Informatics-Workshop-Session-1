@@ -13,9 +13,172 @@ library(tidyverse)
 library(immunogenetr)
 ```
 
-# Now that we've loaded the machines we'll need, let's run our first line of code:
+# Now that we've loaded the machines we'll need, let's run our first lines of code:
 
 ```{r}
-HLA_typing_1 %>% print()
+# Let's assign an HLA allele to an object called "allele":
+allele <- "HLA-A*02:01:01:01"
+
+# Then let's pass that allele to a function called `HLA_truncate`:
+allele %>% HLA_truncate()
 ```
+
+# Let's look up the settings for `HLA_truncate`. Type this: `?HLA_truncate` into the console, below.
+
+```{r}
+# Here's the full settings (parameters) for `HLA_truncate`:
+
+HLA_truncate(
+  data,
+  fields = 2,
+  keep_suffix = TRUE,
+  keep_G_P_group = FALSE,
+  remove_duplicates = FALSE
+)
+
+# Try to set up the code to do the following:
+# Truncate "HLA-DRB1*14:54:01:01" to 1 field.
+# Truncate "HLA-B*15:01:01G" to 2 fields, and keep the G group on the end.
+# Truncate all the alleles in this GL string: "HLA-A*01:01:01/HLA-A*01:01:02" to two fields. 
+# The same as above, but this time simplify the output so duplicates are removed.
+```
+
+# Let's play with some real-world data.
+
+```{r}
+# Data from the HLA dictionary are included in a tibble called "HLA_dictionary". A tibble is the main data structure of the tidyverse. Run the code in this chunk to `print`, or "show" the tibble. See if you can navigate around this tibble to get a better look at the data in it.
+
+HLA_dictionary %>% print()
+```
+
+# You may notice that the HLA alleles in this tibble are listed at various numbers of fields. Let's use the `HLA_truncate` function to reduce these all to 2 fields. To change data in a column of a tibble, we'll need to learn how to use the `mutate` function.
+
+```{r}
+# Using the mutate function. Let's take a look at this piece of code:
+
+HLA_dictionary %>% 
+  mutate(HLA.allele.truncated = HLA.Allele)
+```
+
+```{r}
+# Lets break this function down to understand it:
+
+HLA_dictionary %>% 
+  mutate(
+    HLA.allele.truncated # The name we are giving the new column.
+    = # This indicates we are getting the data to fill the new column from somewhere.
+      HLA.Allele # Where we're getting the new data.
+    )
+```
+
+# Your turn - try out these excercises:
+
+```{r}
+# Using this bit of code, follow the prompts below:
+
+HLA_dictionary %>% 
+  mutate(
+    HLA.allele.truncated          # New column name.
+    = 
+      HLA.Allele                  # Data for new column.
+    )
+
+# 1: Fill the new column with the text "I love New Orleans!"
+# 2: Overwrite the data in the existing "HLA.Allele" column with that text.
+# 3: Overwrite the data in the existing column with data truncated by the `HLA_truncate` function. (Hint: you can put the complete function `HLA_truncate(HLA.Allele))` inside the `mutate` function.
+```
+
+```{r}
+# Great, here is a functioning bit of code with alleles truncated to 2 fields:
+
+HLA_dictionary %>% 
+  mutate(HLA.Allele.truncated = HLA_truncate(HLA.Allele))
+
+# Let's learn some new functions for data manipulation.
+```
+
+# The `select` function will subset a tibble by columns. Let's add it to our code:
+
+```{r}
+# Look at this code and see if you can figure out what it will do. Run it and see if you're right.
+
+HLA_dictionary %>% 
+  mutate(HLA.Allele.truncated = HLA_truncate(HLA.Allele)) %>% 
+  select(HLA.Allele.truncated, WHO.Assigned.Type)
+```
+
+# Now your time to try it out:
+
+```{r}
+# Complete this code given the prompts below:
+
+HLA_dictionary %>% 
+  mutate(HLA.Allele.truncated = HLA_truncate(HLA.Allele)) %>% 
+  select() # Update this line.
+
+# 1: Keep the IPD.Accession and HLA.Allele.truncated columns.
+# 2: Reorder the columns in this order: HLA.Allele.truncated, HLA.Allele, WHO.Assigned.Type, IPD.Accession.
+# 3: Keep the three columns between HLA.Allele and HLA.Allele.truncated. Hint: you can use ":" in the function.
+```
+
+# Great. Let's learn one more function for data manipulation: `filter`.
+
+```{r}
+# Take a look at this code and see if you can figure out what it will do. Run the code and see if you're right.
+
+HLA_dictionary %>% 
+  mutate(HLA.Allele.truncated = HLA_truncate(HLA.Allele)) %>% 
+  select(HLA.Allele.truncated, WHO.Assigned.Type) %>% 
+  filter(WHO.Assigned.Type == "A11")
+```
+
+# The `filter` function subsets a tibble by rows. The function uses one of R's relational operators, "equal to," "==". Another useful relational operator is "not equal to," "!=". Try these out yourself below:
+
+```{r}
+# Complete this code given the prompts below:
+
+HLA_dictionary %>% 
+  mutate(HLA.Allele.truncated = HLA_truncate(HLA.Allele)) %>% 
+  select(HLA.Allele.truncated, WHO.Assigned.Type) %>% 
+  filter() # Complete this line.
+
+# 1: Filter for rows where the HLA.Allele.truncated column equals "A*03:01".
+# 2: Filter for all rows that have a WHO-assigned serologic equivalent. (Hint: values that are not "-" would have a serologic equivalent.)
+# 3: Filter for rows that have a serologic equivalent of either B53 or B7. (Hint: the logical operator "or," "|" may be useful.)
+```
+
+# Great, we've put together a fully-functional data pipeline. Let's complete it by assigning the output of our code to an object, so our valuble data doesn't just fall on the floor:
+
+```{r}
+# The assignment operator, " <- " will asign the output to an object. It is traditionally placed at the very beginning of the code:
+
+A11_alleles <- HLA_dictionary %>% # We assign the output to a new object called "A11_alleles".
+  mutate(HLA.Allele.truncated = HLA_truncate(HLA.Allele)) %>% 
+  select(HLA.Allele.truncated, WHO.Assigned.Type) %>% 
+  filter(WHO.Assigned.Type == "A11") 
+
+# Our output won't automatically show, but we can always use `print` to inspect it:
+
+print(A11_alleles)
+```
+
+# There you go, you are now officially an R coder! If you have time before the end of the session try out your new coding skills on some of these suggestions:
+
+```{r}
+# Take a look at the HLA_typing_1 tibble. 
+# Write some code to select columns of the tibble.
+# Write some code to filter for specific HLA alleles.
+# Play around with mutating the data in the columns. Try adding the "HLA-" prefix to the alleles using the `HLA_prefix_add" function.
+# If you've figured out how to add the "HLA-" prefix to one column, can you figure out how to add it to all the columns? As a suggestion, once you've got a working bit of code for for one column, ask your favorite LLM how to get it to work on all the columns.
+
+
+```
+
+
+
+
+
+
+
+
 
